@@ -25,20 +25,23 @@ GPIO.setup(SPI_CS_PIN, GPIO.OUT)
 GPIO.setup(SPI_CLK_PIN, GPIO.OUT)
 GPIO.setup(SPI_SDISDO_PIN, GPIO.OUT)
 
-## Intilizing pin values, most need to be set to low voltage (False)
-## TODO I should see how much of this I can do without without breaking things.
-GPIO.output(SPI_CLK_PIN, False)
-GPIO.output(SPI_SDISDO_PIN, False)
-GPIO.output(SPI_CS_PIN, False)
+"""
+The Chip Select (CS) signal is used to select the device and frame a command sequence. To start a command,
+or sequence of commands, the CS signal must transition from the inactive state (VIH) to an active state
+(VIL or VIHH).
 
-GPIO.output(SPI_CS_PIN, True) ## This may be picking our 8 bit / 16 bit mode
-GPIO.output(SPI_CLK_PIN, False)
-GPIO.output(SPI_CS_PIN, False) ## Umm, why is this here? Now I'm really confused? Why did I do this 2 years ago?
+After the CS signal has gone active, the SDO pin is driven and the clock bit counter is reset. The Chip Select (CS)
+signal is used to select the device and frame a command sequence. To start a command, or sequence of commands, the
+CS signal must transition from the inactive state (VIH) to an active state (VIL or VIHH).
 
+After the CS signal has gone active, the SDO pin is driven and the clock bit counter is reset. 
+"""
+GPIO.output(SPI_CS_PIN, True) ## VIH 3.3 V, inactive
+GPIO.output(SPI_CS_PIN, False) ## VIL 0 V, active
 
 def set_value(value):
     b = '{0:016b}'.format(value) ## TODO Try to get this to work with 8 bit.
-    for x in range(0, 16):
+    for x in range(0,16):
         GPIO.output(SPI_SDISDO_PIN, int(b[x])) # Send input to the serial pin (this is of course binary, hi / low, 3.3V / 0V)
 
         ## Cycle the clock. Must be cycled for every literal bit of serial input.
@@ -67,8 +70,8 @@ def fade(level,delay):
                 time.sleep(delay)
 
 def quit_gracefully(*args):
-    ## signal sends us args that we don't care about. We will need to be able to accpet them though, hense *args.
-    set_value(255)
+    ## Signal sends us args that we don't care about. We will need to be able to accpet them though, hense *args.
+    set_value(255) ## Set resistance high to cut of LED
     GPIO.cleanup()
     exit(0)
 
