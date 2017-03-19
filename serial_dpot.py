@@ -39,6 +39,7 @@ After the CS signal has gone active, the SDO pin is driven and the clock bit cou
 GPIO.output(SPI_CS_PIN, True) ## VIH 3.3 V, inactive
 GPIO.output(SPI_CS_PIN, False) ## VIL 0 V, active
 
+max_resistance_lvl = 42
 def set_value(value):
     b = '{0:016b}'.format(value) ## TODO Try to get this to work with 8 bit.
     for x in range(0,16):
@@ -58,13 +59,13 @@ def discrete_value_from_input(level):
 def fade(level,delay):
         while True:
     #       for level in range(0, 256):
-            for level in range(0, 40):
+            for level in range(0, max_resistance_lvl):
                 print 'level:' + str(level)
                 set_value(level)
                 time.sleep(delay)
 
     #       for level in range(255, -1, -1):
-            for level in range(40, -1 , -1):
+            for level in range(max_resistance_lvl, -1 , -1):
                 print 'level:' + str(level)
                 set_value(level)
                 time.sleep(delay)
@@ -75,7 +76,7 @@ def quit_gracefully(*args):
     GPIO.cleanup()
     exit(0)
 
-def main(level=62, delay=0.03):
+def main(level=max_resistance_lvl, delay=0.03):
     signal.signal(signal.SIGINT, quit_gracefully) ## I have this here so I can send this process a keyboard interruppted when it's running in the background.
     try:
         fade(level,delay)
