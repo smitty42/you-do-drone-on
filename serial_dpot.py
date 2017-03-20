@@ -37,7 +37,7 @@ After the CS signal has gone active, the SDO pin is driven and the clock bit cou
 GPIO.output(SPI_CS_PIN, True) ## VIH 3.3 V, inactive
 GPIO.output(SPI_CS_PIN, False) ## VIL 0 V, active
 
-max_resistance_lvl = 42 ## This value corrisponds the resistance that the LED will cut off (round about).
+max_resistance_lvl = 42 ## This value corrisponds the resistance that the LED will cut off at (round about).
 def set_value(value):
     ## The serial input pin take wants a 16 bit integer between 0 and 255 that will be used to determine the set resistnace.
     binary_input_for_serial_pin = '{0:016b}'.format(value)
