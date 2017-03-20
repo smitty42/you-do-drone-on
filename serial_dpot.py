@@ -1,12 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 ## MCP4131 docs: http://cdn.sparkfun.com/datasheets/Components/General%20IC/22060b.pdf
 ## some (liberally borrowed from) codes: http://electronics.stackexchange.com/questions/94479/digital-potentiometer-mcp4131-with-raspberry-pi
 
-import sys
 import time
 import signal
-import argparse
 
 import RPi.GPIO as GPIO
 
@@ -39,32 +37,26 @@ After the CS signal has gone active, the SDO pin is driven and the clock bit cou
 GPIO.output(SPI_CS_PIN, True) ## VIH 3.3 V, inactive
 GPIO.output(SPI_CS_PIN, False) ## VIL 0 V, active
 
-max_resistance_lvl = 42
+max_resistance_lvl = 42 ## This value corrisponds the resistance that the LED will cut off (round about).
 def set_value(value):
-    b = '{0:016b}'.format(value) ## TODO Try to get this to work with 8 bit.
-    for x in range(0,16):
-        GPIO.output(SPI_SDISDO_PIN, int(b[x])) # Send input to the serial pin (this is of course binary, hi / low, 3.3V / 0V)
+    ## The serial input pin take wants a 16 bit integer between 0 and 255 that will be used to determine the set resistnace.
+    binary_input_for_serial_pin = '{0:016b}'.format(value)
+    for bit in range(0,16):
+        GPIO.output(SPI_SDISDO_PIN, int(binary_input_for_serial_pin[bit])) # Send input to the serial pin (this is of course binary, hi / low, 3.3V / 0V)
 
         ## Cycle the clock. Must be cycled for every literal bit of serial input.
         GPIO.output(SPI_CLK_PIN, True)
         GPIO.output(SPI_CLK_PIN, False)
         ## There was evening, and there was morning--the nth day.
 
-def discrete_value_from_input(level):
-    while True:
-        print 'level:' + str(level)
-        set_value(level)
-        level = int(raw_input('enter level (1 - 40)\n'))
-
 def fade(level,delay):
         while True:
-    #       for level in range(0, 256):
+            ## Fade up
             for level in range(0, max_resistance_lvl):
                 print 'level:' + str(level)
                 set_value(level)
                 time.sleep(delay)
-
-    #       for level in range(255, -1, -1):
+            ## Fade down
             for level in range(max_resistance_lvl, -1 , -1):
                 print 'level:' + str(level)
                 set_value(level)
@@ -85,3 +77,10 @@ def main(level=max_resistance_lvl, delay=0.03):
 
 if __name__ == "__main__":
     main()
+
+# def discrete_value_from_input(level):
+#     while True:
+#         print 'level:' + str(level)
+#         set_value(level)
+#         level = int(raw_input('enter level (1 - 40)\n'))
+
